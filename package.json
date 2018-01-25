@@ -1,0 +1,15 @@
+{
+  "name": "whenstop",
+  "version": "1.0.0",
+  "description": "Get public transit predictions through Google Assistant",
+  "main": "index.js",
+  "author": "Ajay Gandhi",
+  "license": "MIT",
+  "dependencies": {
+    "actions-on-google": "^1.7.0",
+    "body-parser": "^1.18.2",
+    "express": "^4.16.2",
+    "request-promise": "^4.2.2",
+    "x2js": "^3.1.1"
+  }
+}
