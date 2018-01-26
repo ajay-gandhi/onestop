@@ -68,7 +68,7 @@ module.exports = (function () {
   /**
    * Set the user's selected agency
    */
-  PostGres.prototype.selectAgency = (googleId, agencyId) => {
+  PostGres.prototype.selectAgency = function (googleId, agencyId) {
     const user = this.getUser(googleId);
     user.agencyId = agencyId;
     this.saveUser(user);
@@ -77,7 +77,7 @@ module.exports = (function () {
   /**
    * Set the user's selected route
    */
-  PostGres.prototype.selectRoute = (googleId, routeId) => {
+  PostGres.prototype.selectRoute = function (googleId, routeId) {
     const user = this.getUser(googleId);
     user.routeId = routeId;
     this.saveUser(user);
@@ -86,26 +86,24 @@ module.exports = (function () {
   /**
    * Set the user's selected stop
    */
-  PostGres.prototype.selectStop = (googleId, stopId) => {
+  PostGres.prototype.selectStop = function (googleId, stopId) {
     const user = this.getUser(googleId);
     user.stopId = stopId;
     this.saveUser(user);
   };
 
   /**
-   * Get the user's selected agency
+   * Getters
    */
-  PostGres.prototype.getAgencyId = googleId => this.getUser(googleId).agencyId;
-
-  /**
-   * Get the user's selected route
-   */
-  PostGres.prototype.getRouteId = googleId => this.getUser(googleId).routeId;
-
-  /**
-   * Get the user's selected stop
-   */
-  PostGres.prototype.getStopId = googleId => this.getUser(googleId).stopId;
+  PostGres.prototype.getAgencyId = function (googleId) {
+    return this.getUser(googleId).agencyId;
+  };
+  PostGres.prototype.getRouteId = function (googleId) {
+    return this.getUser(googleId).routeId;
+  };
+  PostGres.prototype.getStopId = function (googleId) {
+    return this.getUser(googleId).stopId;
+  };
 
   /**
    * Page the user to the database.
