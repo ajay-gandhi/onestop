@@ -29,11 +29,12 @@ module.exports = (function () {
       "stopId text NOT NULL" +
     ")");
 
-    client
-      .query("SELECT * FROM users")
-      .on("row", function (row) {
+    client.query("SELECT * FROM users", (err, res) => {
+      if (err) throw err;
+      for (let row of res.rows) {
         self.users[row.googleId] = row;
-      });
+      }
+    });
 
     return this;
   }
@@ -125,7 +126,9 @@ module.exports = (function () {
         "INSERT INTO users (googleId, " + (user.routeId ? "routeId, " : "") + "stopId) " +
         "VALUES ('" + googleId + "', '" + (user.routeId ? user.routeId + "', '" : "") + user.stopId + "') " +
         "RETURNING id, googleId, routeId, stopId"
-      ).on("row", (row) => {
+      , (err, row) => {
+        if (err) throw err;
+
         self.saveUser({
           id: row.id,
           googleId: row.googleId,
