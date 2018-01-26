@@ -3,6 +3,12 @@
   "version": "1.0.0",
   "description": "Get public transit predictions through Google Assistant",
   "main": "index.js",
+  "engines": {
+    "node": "9.4.0"
+  },
+  "scripts": {
+    "start": "node index.js"
+  },
   "author": "Ajay Gandhi",
   "license": "MIT",
   "dependencies": {
