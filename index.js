@@ -4,7 +4,9 @@ const bodyParser = require("body-parser");
 const rp = require("request-promise");
 const DialogflowApp = require("actions-on-google").DialogflowApp;
 const x2js = new (require("x2js"))();
+const stringComp = require("damerau-levenshtein");
 
+const Data = require("./data");
 const UserDB = require("./postgres");
 const users = new UserDB();
 
@@ -27,35 +29,62 @@ const welcomeAction = (app) => {
   if (users.getStopId(userId)) {
     respondWithPrediction(app);
   } else {
-    app.tell("Welcome to whenstop. Please say the name of the transit agency you are interested in.");
+    app.tell("Welcome to whenstop. To begin setup, please say the name of the transit agency you are interested in.");
   }
 };
-const agencyAction = (app) => {
+
+const selectAgencyAction = (app) => {
   const userId = app.getUser().userId;
+  const agencies = Data.fetchAgencies();
+  const selected = findClosest(app.getArgument("agency"), agency.map(a => a.name));
+  users.selectAgency(userId, selected.id);
+  app.tell("You selected agency " + selected.name + " in " + selected.region + ". Please choose a route.");
+};
+
+const selectRouteAction = (app) => {
+  const userId = app.getUser().userId;
+  const routes = Data.fetchRoutes(users.getAgencyId(userId));
+  const selected = findClosest(app.getArgument("route"), routes.map(r => r.name));
+  users.selectAgency(userId, selected.id);
+  app.tell("You selected route " + selected.name + ". Please choose a direction.");
+};
+
+const memDb = {};
+const selectDirectionAction = (app) => {
+  const userId = app.getUser().userId;
+  const directions = Data.fetchDirectionsAndStops(users.getAgencyId(userId)).directions;
+  const selected = findClosest(app.getArgument("direction"), directions.map(d => d.name));
+  memDb[userId] = selected.id;
+  app.tell("You selected direction " + selected.name + ". Please choose a stop.");
+};
+
+const selectStopAction = (app) => {
+  const userId = app.getUser().userId;
+  const stops = Data.fetchDirectionsAndStops(users.getAgencyId(userId)).stops;
+  const selected = findClosest(app.getArgument("stop"), stops.map(s => s.name));
+  users.selectStop(userId, selected.id);
+  app.tell("You selected stop " + selected.name + ". Setup is finished!");
 };
 
 // Misc functions
 const respondWithPrediction = (app) => {
   const userId = app.getUser().userId;
-  const params = {
-    command: "predictions",
-    a: users.getAgencyId(userId),
-    stopId: users.getStopId(stopId),
-  };
-  if (users.getRouteId(userId)) params.r = users.getRouteId(userId);
-
-  rp(generateApiUrl(params)).then((res) => {
-    const data = x2js.xml2js(res);
-    console.log("raw data: ", data);
-    const prediction = data.body.predictions.direction.prediction[0];
-    console.log("first prediction: ", prediction);
-    app.tell("The next vehicle will arrive in " + prediction._minutes + " minutes.");
+  Data.getPrediction(users.getAgencyId(userId), users.getRouteId(userId), users.getStopId(userId)).then((minutes) => {
+    app.tell("The next vehicle will arrive in " + minutes + " minutes.");
   });
 };
 
-const generateApiUrl = (params) => {
-  const BASE = "http://webservices.nextbus.com/service/publicXMLFeed?";
-  return BASE + Object.keys(params).map(key => key + "=" + params[key]).join("&");
+const findClosest = (needle, haystack) => {
+  let similarity = 0;
+  return haystack.reduce((memo, item) => {
+    const thisSim = stringComp(item, needle).similarity;
+    if (thisSim > similarity) {
+      similarity = thisSim;
+      return item;
+    } else {
+      return memo;
+    }
+  });
 };
 
 app.listen(app.get("port"), () => console.log("Server running"));
