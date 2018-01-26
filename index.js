@@ -17,6 +17,10 @@ app.set("port", (process.env.PORT || 8000));
 // Setup actions
 const actionMap = new Map();
 actionMap.set("welcome", welcomeAction);
+actionMap.set("select_agency", selectAgencyAction);
+actionMap.set("select_route", selectRouteAction);
+actionMap.set("select_direction", selectDirectionAction);
+actionMap.set("select_stop", selectStopAction);
 
 app.post("/", (req, res) => {
   const app = new DialogflowApp({ request: req, response: res });
