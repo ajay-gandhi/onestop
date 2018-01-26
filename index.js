@@ -51,7 +51,7 @@ const selectDirectionAction = (app) => {
     .then(({ directions, stops }) => {
       const selectedIdx = findClosest(app.getArgument("direction"), directions.map(d => d.name));
       const selected = directions[selectedIdx];
-      memDb[userId] = selected.id;
+      memDb[userId] = selected;
       app.ask("You selected direction " + selected.name + ". Please choose a stop.");
     });
 };
@@ -59,12 +59,12 @@ const selectDirectionAction = (app) => {
 const selectStopAction = (app) => {
   const userId = app.getUser().userId;
   Data.fetchDirectionsAndStops(users.getAgencyId(userId), users.getRouteId(userId))
-    .then((ds) => {
-      console.log(ds);
-      const directions = ds.direction;
-      const stops = ds.stops;
-    // .then(({ directions, stops }) => {
-      const stopsInDirection = directions[memDb[userId]].stops.map(id => stops[id]);
+    // .then((ds) => {
+      // console.log(ds);
+      // const directions = ds.direction;
+      // const stops = ds.stops;
+    .then(({ directions, stops }) => {
+      const stopsInDirection = memDb[userId].stops.map(id => stops[id]);
       const selectedIdx = findClosest(app.getArgument("stop"), stopsInDirection.map(s => s.name));
       const selected = stopsInDirection[selectedIdx];
       users.selectStop(userId, selected.id);
