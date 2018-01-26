@@ -68,12 +68,14 @@ module.exports.fetchDirectionsAndStops = (agencyId, routeId) => {
       stops: direction.stop.map(stop => stop._tag),
     }));
 
-    const stops = data.body.route.stop.map((stop) => ({
-      id: stop._tag,
-      name: stop._title,
-    }));
+    const stops = data.body.route.stop.reduce((memo, stop) => {
+      memo[stop._tag] = {
+        id: stop._tag,
+        name: stop._title,
+      };
+      return memo;
+    }, {});
 
-    console.log("stops", stops);
     const ds = {
       directions: directions,
       stops: stops,

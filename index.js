@@ -59,7 +59,11 @@ const selectDirectionAction = (app) => {
 const selectStopAction = (app) => {
   const userId = app.getUser().userId;
   Data.fetchDirectionsAndStops(users.getAgencyId(userId), users.getRouteId(userId))
-    .then(({ directions, stops }) => {
+    .then((ds) => {
+      console.log(ds);
+      const direction = ds.direction;
+      const stops = ds.stops;
+    // .then(({ directions, stops }) => {
       const stopsInDirection = directions[memDb[userId]].stops.map(id => stops[id]);
       const selectedIdx = findClosest(app.getArgument("stop"), stopsInDirection.map(s => s.name));
       const selected = stopsInDirection[selectedIdx];
