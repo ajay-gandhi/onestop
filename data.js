@@ -62,7 +62,6 @@ module.exports.fetchDirectionsAndStops = (agencyId, routeId) => {
   return rp(generateApiUrl(params)).then((res) => {
     const data = x2js.xml2js(res);
 
-    console.log(data.body);
     const directions = data.body.route.direction.map((direction) => ({
       id: direction._tag,
       name: direction._title,
@@ -74,6 +73,7 @@ module.exports.fetchDirectionsAndStops = (agencyId, routeId) => {
       name: stop._title,
     }));
 
+    console.log("stops", stops);
     const ds = {
       directions: directions,
       stops: stops,

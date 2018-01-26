@@ -51,9 +51,7 @@ const selectDirectionAction = (app) => {
     .then(({ directions, stops }) => {
       const selectedIdx = findClosest(app.getArgument("direction"), directions.map(d => d.name));
       const selected = directions[selectedIdx];
-      console.log(selected);
       memDb[userId] = selected.id;
-      console.log(memDb, userId);
       app.ask("You selected direction " + selected.name + ". Please choose a stop.");
     });
 };
@@ -62,14 +60,12 @@ const selectStopAction = (app) => {
   const userId = app.getUser().userId;
   Data.fetchDirectionsAndStops(users.getAgencyId(userId), users.getRouteId(userId))
     .then(({ directions, stops }) => {
-      console.log(directions, memDb[userId]);
-      console.log(memDb, userId);
       const stopsInDirection = directions[memDb[userId]].stops.map(id => stops[id]);
       const selectedIdx = findClosest(app.getArgument("stop"), stopsInDirection.map(s => s.name));
       const selected = stopsInDirection[selectedIdx];
       users.selectStop(userId, selected.id);
       users.page(userId);
-      app.ask("You selected stop " + selected.name + ". Setup is finished!");
+      app.tell("You selected stop " + selected.name + ". Setup is finished!");
     });
 };
 
@@ -83,8 +79,6 @@ const respondWithPrediction = (app) => {
 
 const findClosest = (needle, haystack) => {
   let similarity = 0;
-  console.log("needle", needle);
-  console.log(haystack);
   return haystack.reduce((memo, item, i) => {
     const thisSim = stringComp(item, needle).similarity;
     if (thisSim > similarity) {
