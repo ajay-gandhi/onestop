@@ -61,7 +61,7 @@ const selectStopAction = (app) => {
   Data.fetchDirectionsAndStops(users.getAgencyId(userId), users.getRouteId(userId))
     .then((ds) => {
       console.log(ds);
-      const direction = ds.direction;
+      const directions = ds.direction;
       const stops = ds.stops;
     // .then(({ directions, stops }) => {
       const stopsInDirection = directions[memDb[userId]].stops.map(id => stops[id]);
