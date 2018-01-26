@@ -27,7 +27,9 @@ const welcomeAction = (app) => {
 const selectAgencyAction = (app) => {
   const userId = app.getUser().userId;
   const agencies = Data.fetchAgencies();
-  const selected = findClosest(app.getArgument("agency"), agency.map(a => a.name));
+  console.log(app.getArgument("agency"), agencies);
+  const selected = findClosest(app.getArgument("agency"), agencies.map(a => a.name));
+  console.log("selected", selected);
   users.selectAgency(userId, selected.id);
   app.ask("You selected agency " + selected.name + " in " + selected.region + ". Please choose a route.");
 };
@@ -77,7 +79,7 @@ const findClosest = (needle, haystack) => {
     } else {
       return memo;
     }
-  });
+  }, false);
 };
 
 // Setup actions
