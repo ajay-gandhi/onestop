@@ -21,19 +21,22 @@ module.exports = (function () {
     client.connect();
     this.client = client;
 
-    client.query("CREATE TABLE IF NOT EXISTS users (" +
+    client.query(
+      "CREATE TABLE IF NOT EXISTS users (" +
       "id SERIAL PRIMARY KEY, " +
       "googleId varchar(100) NOT NULL, " +
       "agencyId varchar(100) " +
       "routeId varchar(100) " +
       "stopId text NOT NULL" +
-    ")");
-
-    client.query("SELECT * FROM users", (err, res) => {
+      ")"
+    , (err) => {
       if (err) throw err;
-      for (let row of res.rows) {
-        self.users[row.googleId] = row;
-      }
+      client.query("SELECT * FROM users", (err, res) => {
+        if (err) throw err;
+        for (let row of res.rows) {
+          self.users[row.googleId] = row;
+        }
+      });
     });
 
     return this;
