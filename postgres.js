@@ -116,7 +116,8 @@ module.exports = (function () {
       // Update
       self.client.query(
         "UPDATE users " +
-        (user.routeId ? "SET routeId = '" + user.routeId + "' " : "") +
+        "SET agencyId = '" + user.agencyId + "' " +
+        "SET routeId = '" + user.routeId + "' " +
         "SET stopId = '" + user.stopId + "' " +
         "WHERE id = '" + user.id + "'"
       );
@@ -124,15 +125,16 @@ module.exports = (function () {
     } else {
       // New addition to db
       self.client.query(
-        "INSERT INTO users (googleId, " + (user.routeId ? "routeId, " : "") + "stopId) " +
-        "VALUES ('" + googleId + "', '" + (user.routeId ? user.routeId + "', '" : "") + user.stopId + "') " +
-        "RETURNING id, googleId, routeId, stopId"
+        "INSERT INTO users (googleId, agencyId, routeId, stopId) " +
+        "VALUES ('" + googleId + "', '" + user.agencyId + "', '" + user.routeId + "', '" + user.stopId + "') " +
+        "RETURNING id, googleId, agencyId, routeId, stopId"
       , (err, row) => {
         if (err) throw err;
 
         self.saveUser({
           id: row.id,
           googleId: row.googleId,
+          agencyId: row.agencyId,
           routeId: row.routeId,
           stopId: row.stopId,
         });
