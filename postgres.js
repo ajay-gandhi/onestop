@@ -25,9 +25,9 @@ module.exports = (function () {
       "CREATE TABLE IF NOT EXISTS users (" +
       "id SERIAL PRIMARY KEY, " +
       "googleId varchar(100) NOT NULL, " +
-      "agencyId varchar(100) " +
-      "routeId varchar(100) " +
-      "stopId text NOT NULL" +
+      "agencyId varchar(100) NOT NULL, " +
+      "routeId varchar(100) NOT NULL, " +
+      "stopId varchar (100) NOT NULL" +
       ")"
     , (err) => {
       if (err) throw err;
