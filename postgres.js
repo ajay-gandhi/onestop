@@ -5,8 +5,7 @@
 
 "use strict";
 
-const pg = require("pg").Client;
-pg.defaults.ssl = true;
+const { Client } = require("pg");
 
 module.exports = (function () {
 
@@ -14,25 +13,28 @@ module.exports = (function () {
     this.users = {};
     const self = this;
 
-    pg.connect(process.env.DATABASE_URL, function (err, client) {
-      if (err) throw err;
-
-      self.client = client;
-
-      client.query("CREATE TABLE IF NOT EXISTS users (" +
-        "id SERIAL PRIMARY KEY, " +
-        "googleId varchar(100) NOT NULL, " +
-        "agencyId varchar(100) " +
-        "routeId varchar(100) " +
-        "stopId text NOT NULL" +
-      ")");
-
-      client
-        .query("SELECT * FROM users")
-        .on("row", function (row) {
-          self.users[row.googleId] = row;
-        });
+    const client = new Client({
+      connectionString: process.env.DATABASE_URL,
+      ssl: true,
     });
+
+    client.connect();
+    this.client = client;
+
+    client.query("CREATE TABLE IF NOT EXISTS users (" +
+      "id SERIAL PRIMARY KEY, " +
+      "googleId varchar(100) NOT NULL, " +
+      "agencyId varchar(100) " +
+      "routeId varchar(100) " +
+      "stopId text NOT NULL" +
+    ")");
+
+    client
+      .query("SELECT * FROM users")
+      .on("row", function (row) {
+        self.users[row.googleId] = row;
+      });
+
     return this;
   }
 

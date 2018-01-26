@@ -2,7 +2,7 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const rp = require("request-promise");
-const DialogflowApp = require("actions-on-google").DialogflowApp;
+const { DialogflowApp } = require("actions-on-google");
 const x2js = new (require("x2js"))();
 const stringComp = require("damerau-levenshtein");
 
