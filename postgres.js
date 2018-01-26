@@ -5,7 +5,7 @@
 
 "use strict";
 
-const pg = require("pg");
+const pg = require("pg").Client;
 pg.defaults.ssl = true;
 
 module.exports = (function () {
