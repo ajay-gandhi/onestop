@@ -20,7 +20,7 @@ const welcomeAction = (app) => {
   if (users.getStopId(userId)) {
     respondWithPrediction(app);
   } else {
-    app.tell("Welcome to whenstop. To begin setup, please say the name of the transit agency you are interested in.");
+    app.ask("Welcome to whenstop. To begin setup, please say the name of the transit agency you are interested in.");
   }
 };
 
@@ -29,7 +29,7 @@ const selectAgencyAction = (app) => {
   const agencies = Data.fetchAgencies();
   const selected = findClosest(app.getArgument("agency"), agency.map(a => a.name));
   users.selectAgency(userId, selected.id);
-  app.tell("You selected agency " + selected.name + " in " + selected.region + ". Please choose a route.");
+  app.ask("You selected agency " + selected.name + " in " + selected.region + ". Please choose a route.");
 };
 
 const selectRouteAction = (app) => {
@@ -37,7 +37,7 @@ const selectRouteAction = (app) => {
   const routes = Data.fetchRoutes(users.getAgencyId(userId));
   const selected = findClosest(app.getArgument("route"), routes.map(r => r.name));
   users.selectAgency(userId, selected.id);
-  app.tell("You selected route " + selected.name + ". Please choose a direction.");
+  app.ask("You selected route " + selected.name + ". Please choose a direction.");
 };
 
 const memDb = {};
@@ -46,16 +46,17 @@ const selectDirectionAction = (app) => {
   const directions = Data.fetchDirectionsAndStops(users.getAgencyId(userId)).directions;
   const selected = findClosest(app.getArgument("direction"), directions.map(d => d.name));
   memDb[userId] = selected.id;
-  app.tell("You selected direction " + selected.name + ". Please choose a stop.");
+  app.ask("You selected direction " + selected.name + ". Please choose a stop.");
 };
 
 const selectStopAction = (app) => {
   const userId = app.getUser().userId;
-  const stops = Data.fetchDirectionsAndStops(users.getAgencyId(userId)).stops;
-  const selected = findClosest(app.getArgument("stop"), stops.map(s => s.name));
+  const ds = Data.fetchDirectionsAndStops(users.getAgencyId(userId));
+  const stopsInDirection = ds.directions[memDb[userId]].stops.map(id => ds.stops[id]);
+  const selected = findClosest(app.getArgument("stop"), stopsInDirection.map(s => s.name));
   users.selectStop(userId, selected.id);
   users.page(userId);
-  app.tell("You selected stop " + selected.name + ". Setup is finished!");
+  app.ask("You selected stop " + selected.name + ". Setup is finished!");
 };
 
 // Misc functions
