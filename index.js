@@ -14,19 +14,6 @@ const app = express();
 app.use(bodyParser.json());
 app.set("port", (process.env.PORT || 8000));
 
-// Setup actions
-const actionMap = new Map();
-actionMap.set("welcome", welcomeAction);
-actionMap.set("select_agency", selectAgencyAction);
-actionMap.set("select_route", selectRouteAction);
-actionMap.set("select_direction", selectDirectionAction);
-actionMap.set("select_stop", selectStopAction);
-
-app.post("/", (req, res) => {
-  const app = new DialogflowApp({ request: req, response: res });
-  app.handleRequest(actionMap);
-});
-
 // Actions
 const welcomeAction = (app) => {
   const userId = app.getUser().userId;
@@ -90,5 +77,18 @@ const findClosest = (needle, haystack) => {
     }
   });
 };
+
+// Setup actions
+const actionMap = new Map();
+actionMap.set("welcome", welcomeAction);
+actionMap.set("select_agency", selectAgencyAction);
+actionMap.set("select_route", selectRouteAction);
+actionMap.set("select_direction", selectDirectionAction);
+actionMap.set("select_stop", selectStopAction);
+
+app.post("/", (req, res) => {
+  const app = new DialogflowApp({ request: req, response: res });
+  app.handleRequest(actionMap);
+});
 
 app.listen(app.get("port"), () => console.log("Server running"));
