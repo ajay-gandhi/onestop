@@ -7,22 +7,33 @@ const generateApiUrl = (params) => {
   return BASE + Object.keys(params).map(key => key + "=" + params[key]).join("&");
 };
 
+const memoized = {
+  routes: {},
+  ds: {},
+};
+
 module.exports.fetchAgencies = () => {
+  if (memoized.agencies) return memoized.agencies;
+
   const params = {
     command: "agencyList",
   };
 
   return rp(generateApiUrl(params)).then((res) => {
     const data = x2js.xml2js(res);
-    return data.body.agency.map((agency) => ({
+    const agencies = data.body.agency.map((agency) => ({
       id: agency._tag,
       name: agency._title,
       region: agency._regionTitle,
     }));
+    memoized.agencies = agencies;
+    return agencies;
   });
 };
 
 module.exports.fetchRoutes = (agencyId) => {
+  if (memoized.routes[agencyId]) return memoized.routes[agencyId];
+
   const params = {
     command: "routeList",
     a: agencyId,
@@ -30,14 +41,18 @@ module.exports.fetchRoutes = (agencyId) => {
 
   return rp(generateApiUrl(params)).then((res) => {
     const data = x2js.xml2js(res);
-    return data.body.route.map((route) => ({
+    const routes = data.body.route.map((route) => ({
       id: route._tag,
       name: route._title,
     }));
+    memoized.routes[agencyId] = routes;
+    return routes;
   });
 };
 
 module.exports.fetchDirectionsAndStops = (agencyId, routeId) => {
+  if (memoized.ds[agencyId] && memoized.ds[agencyId][routeId]) return memoized.ds[agencyId][routeId];
+
   const params = {
     command: "routeConfig",
     a: agencyId,
@@ -47,7 +62,6 @@ module.exports.fetchDirectionsAndStops = (agencyId, routeId) => {
   return rp(generateApiUrl(params)).then((res) => {
     const data = x2js.xml2js(res);
 
-    console.log(data.body);
     const directions = data.body.route.direction.map((direction) => ({
       id: direction._tag,
       name: direction._title,
@@ -59,10 +73,14 @@ module.exports.fetchDirectionsAndStops = (agencyId, routeId) => {
       name: stop._title,
     }));
 
-    return {
+    const ds = {
       directions: directions,
       stops: stops,
     };
+
+    if (!memoized.ds[agencyId]) memoized.ds[agencyId] = {};
+    memoized.ds[agencyId][routeId] = ds;
+    return ds;
   });
 };
 
