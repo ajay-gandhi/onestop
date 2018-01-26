@@ -13,7 +13,7 @@ const memoized = {
 };
 
 module.exports.fetchAgencies = () => {
-  if (memoized.agencies) return memoized.agencies;
+  if (memoized.agencies) return Promise.resolve(memoized.agencies);
 
   const params = {
     command: "agencyList",
@@ -32,7 +32,7 @@ module.exports.fetchAgencies = () => {
 };
 
 module.exports.fetchRoutes = (agencyId) => {
-  if (memoized.routes[agencyId]) return memoized.routes[agencyId];
+  if (memoized.routes[agencyId]) return Promise.resolve(memoized.routes[agencyId]);
 
   const params = {
     command: "routeList",
@@ -51,7 +51,7 @@ module.exports.fetchRoutes = (agencyId) => {
 };
 
 module.exports.fetchDirectionsAndStops = (agencyId, routeId) => {
-  if (memoized.ds[agencyId] && memoized.ds[agencyId][routeId]) return memoized.ds[agencyId][routeId];
+  if (memoized.ds[agencyId] && memoized.ds[agencyId][routeId]) return Promise.resolve(memoized.ds[agencyId][routeId]);
 
   const params = {
     command: "routeConfig",
