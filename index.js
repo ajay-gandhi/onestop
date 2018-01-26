@@ -54,6 +54,7 @@ const selectStopAction = (app) => {
   const stops = Data.fetchDirectionsAndStops(users.getAgencyId(userId)).stops;
   const selected = findClosest(app.getArgument("stop"), stops.map(s => s.name));
   users.selectStop(userId, selected.id);
+  users.page(userId);
   app.tell("You selected stop " + selected.name + ". Setup is finished!");
 };
 
