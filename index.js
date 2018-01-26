@@ -27,9 +27,8 @@ const welcomeAction = (app) => {
 const selectAgencyAction = (app) => {
   const userId = app.getUser().userId;
   Data.fetchAgencies().then((agencies) => {
-    console.log(agencies);
-    const selected = findClosest(app.getArgument("agency"), agencies.map(a => a.name));
-    console.log("selected", selected);
+    const selectedIdx = findClosest(app.getArgument("agency"), agencies.map(a => a.name));
+    const selected = agencies[selectedIdx];
     users.selectAgency(userId, selected.id);
     app.ask("You selected agency " + selected.name + " in " + selected.region + ". Please choose a route.");
   });
@@ -38,7 +37,8 @@ const selectAgencyAction = (app) => {
 const selectRouteAction = (app) => {
   const userId = app.getUser().userId;
   Data.fetchRoutes(users.getAgencyId(userId)).then((routes) => {
-    const selected = findClosest(app.getArgument("route"), routes.map(r => r.name));
+    const selectedIdx = findClosest(app.getArgument("route"), routes.map(r => r.name));
+    const selected = routes[selectedIdx];
     users.selectAgency(userId, selected.id);
     app.ask("You selected route " + selected.name + ". Please choose a direction.");
   });
@@ -48,7 +48,8 @@ const memDb = {};
 const selectDirectionAction = (app) => {
   const userId = app.getUser().userId;
   Data.fetchDirectionsAndStops(users.getAgencyId(userId)).then(({ directions, stops }) => {
-    const selected = findClosest(app.getArgument("direction"), directions.map(d => d.name));
+    const selectedIdx = findClosest(app.getArgument("direction"), directions.map(d => d.name));
+    const selected = directions[selectedIdx];
     memDb[userId] = selected.id;
     app.ask("You selected direction " + selected.name + ". Please choose a stop.");
   });
@@ -58,7 +59,8 @@ const selectStopAction = (app) => {
   const userId = app.getUser().userId;
   Data.fetchDirectionsAndStops(users.getAgencyId(userId)).then(({ direction, stops }) => {
     const stopsInDirection = ds.directions[memDb[userId]].stops.map(id => ds.stops[id]);
-    const selected = findClosest(app.getArgument("stop"), stopsInDirection.map(s => s.name));
+    const selectedIdx = findClosest(app.getArgument("stop"), stopsInDirection.map(s => s.name));
+    const selected = stopsInDirection[selectedIdx];
     users.selectStop(userId, selected.id);
     users.page(userId);
     app.ask("You selected stop " + selected.name + ". Setup is finished!");
@@ -75,11 +77,13 @@ const respondWithPrediction = (app) => {
 
 const findClosest = (needle, haystack) => {
   let similarity = 0;
-  return haystack.reduce((memo, item) => {
+  console.log("needle", needle);
+  return haystack.reduce((memo, item, i) => {
     const thisSim = stringComp(item, needle).similarity;
     if (thisSim > similarity) {
+      console.log(thisSim, item);
       similarity = thisSim;
-      return item;
+      return i;
     } else {
       return memo;
     }
