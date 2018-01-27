@@ -14,8 +14,8 @@
   "dependencies": {
     "actions-on-google": "^1.7.0",
     "body-parser": "^1.18.2",
-    "damerau-levenshtein": "^1.0.4",
     "express": "^4.16.2",
+    "fuzzy-search": "^2.0.1",
     "pg": "^7.4.1",
     "request": "^2.83.0",
     "request-promise": "^4.2.2",

@@ -144,10 +144,6 @@ cryptiles@3.x.x:
   dependencies:
     boom "5.x.x"
 
-damerau-levenshtein@^1.0.4:
-  version "1.0.4"
-  resolved "https://registry.yarnpkg.com/damerau-levenshtein/-/damerau-levenshtein-1.0.4.tgz#03191c432cb6eea168bb77f3a55ffdccb8978514"
-
 dashdash@^1.12.0:
   version "1.14.1"
   resolved "https://registry.yarnpkg.com/dashdash/-/dashdash-1.14.1.tgz#853cfa0f7cbe2fed5de20326b8dd581035f6e2f0"
@@ -291,6 +287,10 @@ forwarded@~0.1.2:
 fresh@0.5.2:
   version "0.5.2"
   resolved "https://registry.yarnpkg.com/fresh/-/fresh-0.5.2.tgz#3d8cadd90d976569fa835ab1f8e4b23a105605a7"
+
+fuzzy-search@^2.0.1:
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/fuzzy-search/-/fuzzy-search-2.0.1.tgz#f96c34434d7a41543c257842ac60d62bcbcac934"
 
 getpass@^0.1.1:
   version "0.1.7"

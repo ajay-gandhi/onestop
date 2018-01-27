@@ -4,7 +4,7 @@ const bodyParser = require("body-parser");
 const rp = require("request-promise");
 const { DialogflowApp } = require("actions-on-google");
 const x2js = new (require("x2js"))();
-const stringComp = require("damerau-levenshtein");
+const FuzzySearch = require("fuzzy-search");
 
 const Data = require("./data");
 const UserDB = require("./postgres");
@@ -59,10 +59,6 @@ const selectDirectionAction = (app) => {
 const selectStopAction = (app) => {
   const userId = app.getUser().userId;
   Data.fetchDirectionsAndStops(users.getAgencyId(userId), users.getRouteId(userId))
-    // .then((ds) => {
-      // console.log(ds);
-      // const directions = ds.direction;
-      // const stops = ds.stops;
     .then(({ directions, stops }) => {
       const stopsInDirection = memDb[userId].stops.map(id => stops[id]);
       const selectedIdx = findClosest(app.getArgument("stop"), stopsInDirection.map(s => s.name));
@@ -82,16 +78,8 @@ const respondWithPrediction = (app) => {
 };
 
 const findClosest = (needle, haystack) => {
-  let similarity = 0;
-  return haystack.reduce((memo, item, i) => {
-    const thisSim = stringComp(item, needle).similarity;
-    if (thisSim > similarity) {
-      similarity = thisSim;
-      return i;
-    } else {
-      return memo;
-    }
-  }, false);
+  const searcher = new FuzzySearch(haystack, ["name"], { caseSensitive: true });
+  return searcher.search(needle)[0];
 };
 
 // Setup actions
