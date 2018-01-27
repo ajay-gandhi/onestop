@@ -27,8 +27,7 @@ const welcomeAction = (app) => {
 const selectAgencyAction = (app) => {
   const userId = app.getUser().userId;
   Data.fetchAgencies().then((agencies) => {
-    const selectedIdx = findClosest(app.getArgument("agency"), agencies.map(a => a.name));
-    const selected = agencies[selectedIdx];
+    const selected = findClosest(app.getArgument("agency"), agencies);
     users.selectAgency(userId, selected.id);
     app.ask("You selected agency " + selected.name + " in " + selected.region + ". Please choose a route.");
   });
@@ -37,8 +36,7 @@ const selectAgencyAction = (app) => {
 const selectRouteAction = (app) => {
   const userId = app.getUser().userId;
   Data.fetchRoutes(users.getAgencyId(userId)).then((routes) => {
-    const selectedIdx = findClosest(app.getArgument("route"), routes.map(r => r.name));
-    const selected = routes[selectedIdx];
+    const selected = findClosest(app.getArgument("route"), routes);
     users.selectRoute(userId, selected.id);
     app.ask("You selected route " + selected.name + ". Please choose a direction.");
   });
@@ -49,8 +47,7 @@ const selectDirectionAction = (app) => {
   const userId = app.getUser().userId;
   Data.fetchDirectionsAndStops(users.getAgencyId(userId), users.getRouteId(userId))
     .then(({ directions, stops }) => {
-      const selectedIdx = findClosest(app.getArgument("direction"), directions.map(d => d.name));
-      const selected = directions[selectedIdx];
+      const selected = findClosest(app.getArgument("direction"), directions);
       memDb[userId] = selected;
       app.ask("You selected direction " + selected.name + ". Please choose a stop.");
     });
@@ -61,8 +58,7 @@ const selectStopAction = (app) => {
   Data.fetchDirectionsAndStops(users.getAgencyId(userId), users.getRouteId(userId))
     .then(({ directions, stops }) => {
       const stopsInDirection = memDb[userId].stops.map(id => stops[id]);
-      const selectedIdx = findClosest(app.getArgument("stop"), stopsInDirection.map(s => s.name));
-      const selected = stopsInDirection[selectedIdx];
+      const selected = findClosest(app.getArgument("stop"), stopsInDirection);
       users.selectStop(userId, selected.id);
       users.page(userId);
       app.tell("You selected stop " + selected.name + ". Setup is finished!");
