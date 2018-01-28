@@ -74,7 +74,7 @@ const respondWithPrediction = (app) => {
 };
 
 const findClosest = (needle, haystack) => {
-  const searcher = new FuzzySearch(haystack, ["name"], { caseSensitive: true });
+  const searcher = new FuzzySearch(haystack, ["name"], { caseSensitive: false });
   return searcher.search(needle)[0];
 };
 
