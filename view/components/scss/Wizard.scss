@@ -1,0 +1,31 @@
+.WizardContainer {
+  position: relative;
+  width: 100vw;
+  margin-top: 80px;
+  overflow: hidden;
+}
+.WizardContainer__Wizard {
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: start;
+  transition: margin-left 300ms cubic-bezier(0.77, 0, 0.175, 1);
+}
+
+.Wizard__Step {
+  flex: 0 0 100vw;
+  padding: 0 20px;
+  min-height: 300px;
+}
+.Step__Navigation {
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: space-around;
+  margin-top: 10px;
+}
+.Navigation__button {
+  flex: 1 1 50%;
+
+  &:first-of-type {
+    margin-right: 10px;
+  }
+}
