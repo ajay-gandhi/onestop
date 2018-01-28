@@ -1,9 +1,9 @@
+/* global require, process, __dirname */
 
+const path = require("path");
 const express = require("express");
 const bodyParser = require("body-parser");
-const rp = require("request-promise");
 const { DialogflowApp } = require("actions-on-google");
-const x2js = new (require("x2js"))();
 const FuzzySearch = require("fuzzy-search");
 
 const Data = require("./data");
@@ -46,7 +46,7 @@ const memDb = {};
 const selectDirectionAction = (app) => {
   const userId = app.getUser().userId;
   Data.fetchDirectionsAndStops(users.getAgencyId(userId), users.getRouteId(userId))
-    .then(({ directions, stops }) => {
+    .then(({ directions }) => {
       const selected = findClosest(app.getArgument("direction"), directions);
       memDb[userId] = selected;
       app.ask("You selected direction " + selected.name + ". Please choose a stop.");
@@ -56,7 +56,7 @@ const selectDirectionAction = (app) => {
 const selectStopAction = (app) => {
   const userId = app.getUser().userId;
   Data.fetchDirectionsAndStops(users.getAgencyId(userId), users.getRouteId(userId))
-    .then(({ directions, stops }) => {
+    .then(({ stops }) => {
       const stopsInDirection = memDb[userId].stops.map(id => stops[id]);
       const selected = findClosest(app.getArgument("stop"), stopsInDirection);
       users.selectStop(userId, selected.id);
@@ -90,5 +90,9 @@ app.post("/", (req, res) => {
   const app = new DialogflowApp({ request: req, response: res });
   app.handleRequest(actionMap);
 });
+
+// Serve view
+app.use(express.static("public"));
+app.get("*", (req, res) => res.sendFile(path.resolve(__dirname, "public/index.html")));
 
 app.listen(app.get("port"), () => console.log("Server running"));
