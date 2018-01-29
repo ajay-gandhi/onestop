@@ -20,7 +20,7 @@ const welcomeAction = (app) => {
   if (users.getStopId(userId)) {
     respondWithPrediction(app);
   } else {
-    app.ask("Welcome to whenstop. To begin setup, please say the name of the transit agency you are interested in.");
+    app.ask("Welcome to OneStop. To begin setup, please say the name of the transit agency you are interested in.");
   }
 };
 
@@ -29,7 +29,7 @@ const selectAgencyAction = (app) => {
   Data.fetchAgencies().then((agencies) => {
     const selected = findClosest(app.getArgument("agency"), agencies);
     users.selectAgency(userId, selected.id);
-    app.ask("You selected agency " + selected.name + " in " + selected.region + ". Please choose a route.");
+    app.ask("You selected agency " + selected.name + " in region " + selected.region + ". Please choose a route.");
   });
 };
 
