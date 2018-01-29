@@ -99,8 +99,8 @@ module.exports.getPrediction = (agencyId, routeId, stopId) => {
 
   return rp(generateApiUrl(params)).then((res) => {
     const data = x2js.xml2js(res);
-    console.log(data);
-    const prediction = data.body.predictions.direction.prediction[0];
+    console.log(data.body.predictions);
+    const prediction = data.body.predictions.direction[0].prediction;
     return prediction._minutes;
   });
 };
