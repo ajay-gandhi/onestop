@@ -77,8 +77,8 @@ const respondWithPrediction = (app) => {
 
 const findClosest = (needle, haystack) => {
   let similarity = 0;
-  return haystack.reduce((memo, item, i) => {
-    const thisSim = stringComp(item, needle).similarity;
+  const idx = haystack.reduce((memo, item, i) => {
+    const thisSim = stringComp(item.name, needle).similarity;
     if (thisSim > similarity) {
       similarity = thisSim;
       return i;
@@ -86,6 +86,7 @@ const findClosest = (needle, haystack) => {
       return memo;
     }
   }, false);
+  return haystack[idx];
 };
 
 // Setup actions
