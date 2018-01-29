@@ -1,3 +1,4 @@
+/* global require, module */
 
 const rp = require("request-promise");
 const x2js = new (require("x2js"))();
@@ -41,6 +42,7 @@ module.exports.fetchRoutes = (agencyId) => {
 
   return rp(generateApiUrl(params)).then((res) => {
     const data = x2js.xml2js(res);
+    console.log(data.body.route);
     const routes = data.body.route.map((route) => ({
       id: route._tag,
       name: route._title,

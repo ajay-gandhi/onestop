@@ -4,7 +4,7 @@ const path = require("path");
 const express = require("express");
 const bodyParser = require("body-parser");
 const { DialogflowApp } = require("actions-on-google");
-const FuzzySearch = require("fuzzy-search");
+const stringComp = require("damerau-levenshtein");
 
 const Data = require("./data");
 const UserDB = require("./postgres");
@@ -17,6 +17,7 @@ app.set("port", (process.env.PORT || 8000));
 // Actions
 const welcomeAction = (app) => {
   const userId = app.getUser().userId;
+  console.log("welcome");
   if (users.getStopId(userId)) {
     respondWithPrediction(app);
   } else {
@@ -26,6 +27,7 @@ const welcomeAction = (app) => {
 
 const selectAgencyAction = (app) => {
   const userId = app.getUser().userId;
+  console.log("agency");
   Data.fetchAgencies().then((agencies) => {
     const selected = findClosest(app.getArgument("agency"), agencies);
     users.selectAgency(userId, selected.id);
@@ -74,8 +76,16 @@ const respondWithPrediction = (app) => {
 };
 
 const findClosest = (needle, haystack) => {
-  const searcher = new FuzzySearch(haystack, ["name"], { caseSensitive: false });
-  return searcher.search(needle)[0];
+  let similarity = 0;
+  return haystack.reduce((memo, item, i) => {
+    const thisSim = stringComp(item, needle).similarity;
+    if (thisSim > similarity) {
+      similarity = thisSim;
+      return i;
+    } else {
+      return memo;
+    }
+  }, false);
 };
 
 // Setup actions
