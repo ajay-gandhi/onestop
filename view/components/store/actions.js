@@ -6,12 +6,6 @@ import X2JS from "x2js";
 const x2js = new X2JS();
 
 /** Sync actions **/
-const nextStep = () => {
-  return { type: ACTION_TYPES.nextStep };
-};
-const prevStep = () => {
-  return { type: ACTION_TYPES.prevStep };
-};
 const setValues = (values) => {
   return {
     type: ACTION_TYPES.setValues,
@@ -62,52 +56,64 @@ const fetchAgencies = () => {
   };
 };
 
-const fetchStops = () => {
+const fetchRoutes = () => {
   return (dispatch, getState) => {
-    dispatch(requestData("stops"));
-    dispatch(requestData("routes"));
     const state = getState();
-    return fetch(`${apiBase}routeConfig&a=${state.selectedAgency}`).then(
+    dispatch(requestData("routes"));
+    return fetch(`${apiBase}routeList&a=${state.selectedAgency}`).then(
       response => response.text(),
-      error => console.log("Error fetching stops", error)
+      error => console.log("Error fetching routes", error)
     ).then((xml) => {
       const data = x2js.xml2js(xml);
-      const agg = data.body.route.reduce((memo, route) => {
-        // Aggregate stops and connect to routes
-        const stopList = [];
-        route.stop.forEach((stop) => {
-          stopList.push(stop._tag);
-          if (!memo.stops[stop._tag]) {
-            memo.stops[stop._tag] = {
-              id: stop._tag,
-              stopId: stop._stopId,
-              name: stop._title,
-              lat: stop._lat,
-              lng: stop._lon,
-              routes: [route._tag],
-            };
-          }
-        });
-
-        // Aggregate routes
-        memo.routes[route._tag] = {
+      const routes = data.body.route.map((route) => {
+        return {
           id: route._tag,
           name: route._title,
-          stopIds: stopList,
+        };
+      });
+      dispatch(setData({ routes }));
+      dispatch(doneRequestingData("routes"));
+    });
+  };
+};
+
+const fetchDirectionsAndStops = () => {
+  return (dispatch, getState) => {
+    dispatch(requestData("directions"));
+    dispatch(requestData("stops"));
+    const state = getState();
+    return fetch(`${apiBase}routeConfig&a=${state.selectedAgency}&r=${state.selectedRoute}`).then(
+      response => response.text(),
+      error => console.log("Error fetching directions and stops", error)
+    ).then((xml) => {
+      const data = x2js.xml2js(xml);
+
+      const directions = data.body.route.direction.reduce((memo, direction) => {
+        memo[direction._tag] = {
+          id: direction._tag,
+          name: direction._title,
+          stops: direction.stop.map(stop => stop._tag),
         };
         return memo;
-      }, {
-        stops: {},
-        routes: {},
-      });
+      }, {});
 
-      dispatch(setData({ stops: agg.stops }));
-      dispatch(setData({ routes: agg.routes }));
-      dispatch(doneRequestingData("routes"));
+      const stops = data.body.route.stop.reduce((memo, stop) => {
+        memo[stop._tag] = {
+          id: stop._tag,
+          stopId: stop._stopId,
+          name: stop._title,
+        };
+        return memo;
+      }, {});
+
+      dispatch(setData({ directions }));
+      dispatch(setData({ stops }));
+      dispatch(doneRequestingData("directions"));
       dispatch(doneRequestingData("stops"));
     });
   };
 };
+
 const getPredictions = () => {
   return (dispatch, getState) => {
     dispatch(requestData("predictions"));
@@ -126,52 +132,14 @@ const getPredictions = () => {
   };
 };
 
-const getSettings = () => {
-  return (dispatch) => {
-    dispatch(setValues({ isFetchingSettings: true }));
-    return fetch("/getSettings").then(
-      response => JSON.parse(response.text()),
-      error => console.log("Error fetching settings", error)
-    ).then((json) => {
-      dispatch(setValues({
-        selectedAgency: json.agencyId,
-        selectedRoute: json.routeId,
-        selectedStop: json.stopId,
-      }));
-      dispatch(setValues({ isFetchingSettings: false }));
-    });
-  };
-};
-const saveSettings = () => {
-  return (dispatch, getState) => {
-    dispatch(setValues({ isFetchingSettings: true }));
-    const state = getState();
-    const settings = {
-      agencyId: state.selectedAgency,
-      routeId: state.selectedRoute,
-      stopId: state.selectedStop,
-    };
-    const qsSettings = Object.keys(settings).map(key => key + "=" + settings[key]).join("&");
-    return fetch("/saveSettings?" + qsSettings).then(
-      response => JSON.parse(response.text()),
-      error => console.log("Error fetching settings", error)
-    ).then(() => {
-      dispatch(setValues({ isFetchingSettings: false }));
-    });
-  };
-};
-
 const actions = {
   // Sync,
-  nextStep,
-  prevStep,
   setValues,
 
   // Async
   fetchAgencies,
-  fetchStops,
+  fetchRoutes,
+  fetchDirectionsAndStops,
   getPredictions,
-  getSettings,
-  saveSettings,
 };
 export default actions;
