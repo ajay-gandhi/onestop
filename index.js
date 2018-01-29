@@ -17,7 +17,6 @@ app.set("port", (process.env.PORT || 8000));
 // Actions
 const welcomeAction = (app) => {
   const userId = app.getUser().userId;
-  console.log("welcome");
   if (users.getStopId(userId)) {
     respondWithPrediction(app);
   } else {
@@ -27,7 +26,6 @@ const welcomeAction = (app) => {
 
 const selectAgencyAction = (app) => {
   const userId = app.getUser().userId;
-  console.log("agency");
   Data.fetchAgencies().then((agencies) => {
     const selected = findClosest(app.getArgument("agency"), agencies);
     users.selectAgency(userId, selected.id);

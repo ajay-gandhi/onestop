@@ -42,7 +42,6 @@ module.exports.fetchRoutes = (agencyId) => {
 
   return rp(generateApiUrl(params)).then((res) => {
     const data = x2js.xml2js(res);
-    console.log(data.body.route);
     const routes = data.body.route.map((route) => ({
       id: route._tag,
       name: route._title,
@@ -99,7 +98,6 @@ module.exports.getPrediction = (agencyId, routeId, stopId) => {
 
   return rp(generateApiUrl(params)).then((res) => {
     const data = x2js.xml2js(res);
-    console.log(data.body.predictions.direction.prediction);
     const prediction = data.body.predictions.direction.prediction[0];
     return prediction._minutes;
   });
