@@ -28,8 +28,13 @@ const selectAgencyAction = (app) => {
   const userId = app.getUser().userId;
   Data.fetchAgencies().then((agencies) => {
     const selected = findClosest(app.getArgument("agency"), agencies);
-    users.selectAgency(userId, selected.id);
-    app.ask("You selected agency " + selected.name + " in region " + selected.region + ". Please choose a route.");
+    if (selected) {
+      users.selectAgency(userId, selected.id);
+      app.setContext("selected-agency");
+      app.ask("You selected agency " + selected.name + " in region " + selected.region + ". Please choose a route.");
+    } else {
+      app.ask("I'm sorry, I didn't recognize that agency. Please repeat the name of the agency.");
+    }
   });
 };
 
@@ -37,8 +42,13 @@ const selectRouteAction = (app) => {
   const userId = app.getUser().userId;
   Data.fetchRoutes(users.getAgencyId(userId)).then((routes) => {
     const selected = findClosest(app.getArgument("route"), routes);
-    users.selectRoute(userId, selected.id);
-    app.ask("You selected route " + selected.name + ". Please choose a direction.");
+    if (selected) {
+      users.selectRoute(userId, selected.id);
+      app.setContext("selected-route");
+      app.ask("You selected route " + selected.name + ". Please choose a direction.");
+    } else {
+      app.ask("I'm sorry, I didn't recognize that route. Please repeat the name of the route.");
+    }
   });
 };
 
@@ -48,8 +58,13 @@ const selectDirectionAction = (app) => {
   Data.fetchDirectionsAndStops(users.getAgencyId(userId), users.getRouteId(userId))
     .then(({ directions }) => {
       const selected = findClosest(app.getArgument("direction"), directions);
-      memDb[userId] = selected;
-      app.ask("You selected direction " + selected.name + ". Please choose a stop.");
+      if (selected) {
+        memDb[userId] = selected;
+        app.setContext("selected-direction");
+        app.ask("You selected direction " + selected.name + ". Please choose a stop.");
+      } else {
+        app.ask("I'm sorry, I didn't recognize that direction. Please repeat the name of the direction.");
+      }
     });
 };
 
@@ -59,9 +74,14 @@ const selectStopAction = (app) => {
     .then(({ stops }) => {
       const stopsInDirection = memDb[userId].stops.map(id => stops[id]);
       const selected = findClosest(app.getArgument("stop"), stopsInDirection);
-      users.selectStop(userId, selected.id);
-      users.page(userId);
-      app.tell("You selected stop " + selected.name + ". Setup is finished!");
+      if (selected) {
+        users.selectStop(userId, selected.id);
+        users.page(userId);
+        app.setContext("selected-stop");
+        app.tell("You selected stop " + selected.name + ". Setup is finished!");
+      } else {
+        app.ask("I'm sorry, I didn't recognize that stop. Please repeat the name of the stop.");
+      }
     });
 };
 
